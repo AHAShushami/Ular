@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Related Illness & Snake Bite Dashboard | KPAS JKN Kedah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar highlighting official branding -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="brand">
+                <img class="kkm-logo" src="https://i0.wp.com/sebenarnya.my/wp-content/uploads/2017/06/Logo-KKM-e1518677887552.jpg?fit=400%2C216&ssl=1" alt="Logo KKM" onerror="this.style.display='none'">
+                <div class="brand-text">
+                    <h2>Heat Related Illness Surveillance</h2>
+                    <span>Snake Bite Dashboard for Pharmacy JKN Kedah</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="status-indicator"></span>
+                <span id="syncStatusText">Masa Nyata (Live)</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-title">
+                <h1>Surveillance Overview</h1>
+                <p>Heat-Related Illnesses &amp; Snake Bites Tracking · <span style="font-weight:600; color:var(--kkm-blue);">Developed by KPAS JKN Kedah</span></p>
+            </div>
+        </header>
+
+        <section class="filter-bar">
+            <div class="filter-group">
+                <label for="filterFrom">Dari Tarikh</label>
+                <input type="date" id="filterFrom">
+            </div>
+            <div class="filter-group">
+                <label for="filterTo">Hingga Tarikh</label>
+                <input type="date" id="filterTo">
+            </div>
+            <div class="filter-actions">
+                <button id="applyFilterBtn" class="filter-btn primary">Tapis</button>
+                <button id="resetFilterBtn" class="filter-btn secondary">Set Semula</button>
+            </div>
+            <div class="filter-presets">
+                <button class="preset-btn" data-days="7">7 Hari</button>
+                <button class="preset-btn" data-days="30">30 Hari</button>
+                <button class="preset-btn" data-days="90">90 Hari</button>
+                <button class="preset-btn active" data-days="all">Semua</button>
+            </div>
+        </section>
+
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon total-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                <div class="metric-info">
+                    <h3>Total Kes Berdaftar</h3>
+                    <p id="totalCasesVal" class="metric-value">...</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon heat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <div class="metric-info">
+                    <h3>Penyakit Berkaitan Haba</h3>
+                    <p id="heatCasesVal" class="metric-value">...</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon snake-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div class="metric-info">
+                    <h3>Kes Patukan Ular</h3>
+                    <p id="snakeCasesVal" class="metric-value">...</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon unreported-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div class="metric-info">
+                    <h3>Spesis Ular Tidak Dilaporkan</h3>
+                    <p id="unreportedSpeciesVal" class="metric-value">...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Cases By Hospital / Fasiliti</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="hospitalChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Case Composition</h3>
+                </div>
+                <div class="chart-container doughnut-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-header">
+                    <h3>Kes Mengikut Tarikh (Cases by Date)</h3>
+                </div>
+                <div class="chart-container" style="height:280px;">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-header">
+                    <h3>Pecahan Spesis Ular (Snake Species Breakdown)</h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">Kes tanpa spesis ditandakan sebagai "Tidak Dilaporkan"</p>
+                </div>
+                <div class="chart-container" style="height:280px;">
+                    <canvas id="speciesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="table-header">
+                <h3>Daftar Kes Terkini (Recent Cases Registry)</h3>
+                <p>Klik pada sebarang baris untuk melihat maklumat terperinci (Scorecard).</p>
+            </div>
+            <div class="table-wrapper">
+                <table id="casesTable">
+                    <thead>
+                        <tr>
+                            <th>Tarikh Kejadian</th>
+                            <th>Fasiliti / Hospital</th>
+                            <th>Diagnosis</th>
+                            <th>Spesis Ular</th>
+                            <th>Perkembangan</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="casesTbody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scorecard Modal -->
+    <div id="scorecardModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="sc-header-left">
+                    <h2>Clinical Case Scorecard</h2>
+                    <span class="confidential-badge">CONFIDENTIAL</span>
+                </div>
+                <button id="closeModalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-notice">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <span>Patient Name & Identification Number are hidden to comply with Data Privacy Regulations (PDPA).</span>
+                </div>
+
+                <div class="scorecard-grid">
+                    <div class="sc-group">
+                        <label>Diagnosis Utama</label>
+                        <p id="scDiagnosis" class="highlight-text"></p>
+                    </div>
+                    <div class="sc-group">
+                        <label>Hospital / Fasiliti Pemeriksa</label>
+                        <p id="scHospital"></p>
+                    </div>
+                    <div class="sc-group">
+                        <label>Tarikh Kejadian</label>
+                        <p id="scIncidentDate"></p>
+                    </div>
+                    <div class="sc-group">
+                        <label>Spesis Ular (Jika Berkaitan)</label>
+                        <p id="scSpecies" class="species-text"></p>
+                    </div>
+                </div>
+
+                <div class="section-divider"><span>Maklumat Demografi & Klinikal</span></div>
+
+                <div class="scorecard-grid details-grid">
+                    <div class="sc-group"><label>Umur Pesakit</label><p id="scAge"></p></div>
+                    <div class="sc-group"><label>Jantina</label><p id="scGender"></p></div>
+                    <div class="sc-group"><label>Pekerjaan</label><p id="scJob"></p></div>
+                    <div class="sc-group"><label>Co-Morbiditi</label><p id="scComorbid"></p></div>
+                </div>
+
+                <div class="section-divider"><span>Punca & Lokasi Insiden</span></div>
+
+                <div class="scorecard-longtext">
+                    <div class="sc-group">
+                        <label>Aktiviti Semasa Kejadian</label>
+                        <p id="scActivity"></p>
+                    </div>
+                    <div class="sc-group">
+                        <label>Tempat Kejadian</label>
+                        <p id="scLocation"></p>
+                    </div>
+                </div>
+
+                <div class="scorecard-footer">
+                    <div class="sc-group">
+                        <label>Jenis Rawatan</label>
+                        <p id="scTreatment"></p>
+                    </div>
+                    <div class="sc-group outcome-group">
+                        <label>Hasil Rawatan (Outcome)</label>
+                        <p id="scOutcome" class="outcome-status"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
